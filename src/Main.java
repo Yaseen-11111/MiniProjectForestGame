@@ -479,7 +479,7 @@ public class Main {
     public static String inputString(String message) {
         Scanner sc = new Scanner(System.in);
         print(message);
-        return sc.nextLine();
+        return sc.nextLine().toLowerCase();
     }
 
 
@@ -618,19 +618,22 @@ public class Main {
                     "\nc)Kick" +
                     "\nd)Dodge" +
                     "\nPlease enter here >>> ");
+            print(in);
 
+            attack = in.charAt(0);
             //makes sure the string character entered is between the characters ('a' and 'b') and that the string is a length of 1
-            if ((in.charAt(0) >= 65 && in.charAt(0) <=69)) {
-                attack = in.charAt(0);
+            if ((attack >= 97 && attack <=101)) {
+                int creatureHealth = getCreatureHealth(creature);
+                int playerStrength = getPlayerStrength(player);
                 switch (attack) {
                     case 'a':
-                        setCreatureHealth(creature, (getCreatureHealth(creature) - getPlayerStrength(player)));
+                        setCreatureHealth(creature, creatureHealth - playerStrength);
                         return false;
                     case 'b':
-                        setCreatureHealth(creature, (int) (getCreatureHealth(creature) - getPlayerStrength(player)*0.75));
+                        setCreatureHealth(creature,   (int)(creatureHealth - playerStrength * 0.75));
                         return false;
                     case 'c':
-                        setCreatureHealth(creature, (int) (getCreatureHealth(creature) - getPlayerStrength(player)*0.8));
+                        setCreatureHealth(creature, (int) (creatureHealth - playerStrength * 0.8));
                         return false;
                     case 'd':
                         return true;
