@@ -180,14 +180,14 @@ public class Main {
         Creature c7 = new Creature();
 
         return Creature.creatureArray = new Creature[]{
-                createCreatureRecords(c1,"Bear", true, 10, 100, 15, 5, false),
-                createCreatureRecords(c2,"Dragon", true, 25, 100, 40, 20, true),
+                createCreatureRecords(c1, "Bear", true, 10, 100, 15, 5, false),
+                createCreatureRecords(c2, "Dragon", true, 25, 100, 40, 20, true),
                 createCreatureRecords(c3, "Troll", true, 10, 100, 5, 5, false),
-                createCreatureRecords(c4,"Wolf", true, 15, 100, 35, 15, false),
-                createCreatureRecords(c5,"Cow", false, 0, 100, 10, 0, true),
-                createCreatureRecords(c6,"Cat", false, 5, 100, 20, 0, false),
-                createCreatureRecords(c7,"Dog", false, 10, 100, 20, 0, false),
-                createCreatureRecords(c7,"Sheep", false, 0, 100, 10, 0, true)
+                createCreatureRecords(c4, "Wolf", true, 15, 100, 35, 15, false),
+                createCreatureRecords(c5, "Cow", false, 0, 100, 10, 0, true),
+                createCreatureRecords(c6, "Cat", false, 5, 100, 20, 0, false),
+                createCreatureRecords(c7, "Dog", false, 10, 100, 20, 0, false),
+                createCreatureRecords(c7, "Sheep", false, 0, 100, 10, 0, true)
         };
     }
 
@@ -259,6 +259,10 @@ public class Main {
 
     public static boolean getCreatureFood(Creature creature) {
         return creature.food;
+    }
+
+    public static Creature[] getCreatureArray() {
+        return Creature.creatureArray;
     }
 
     public static void creatureInteraction() {
@@ -384,6 +388,7 @@ public class Main {
 
     //method to create the game map
     public static void loadMap() {
+        creatureArray();
         Surrounding deadEnd = new Surrounding();
         Surrounding crashSite = new Surrounding(); //start
         Surrounding desecratedCemetery = new Surrounding();
@@ -532,7 +537,7 @@ public class Main {
 
     //varied scenarios faced at different locations
     public static void locationOptions(Surrounding location, Player player) {
-        Creature creature = randomCreature(creatureArray());
+        Creature creature = randomCreature(getCreatureArray());
         Random randomNumber = new Random();
         int creatureChance = randomNumber.nextInt(100);
 
@@ -557,7 +562,7 @@ public class Main {
                 "\nPlease enter your input >>> ");
         switch (in.toLowerCase()) {
             case "a":
-                playerAttack(player, creature);
+                fightCreature(creature, player);
                 break;
             case "b":
                 petCreature(player);
@@ -581,12 +586,26 @@ public class Main {
                 "\nWould you like to: " +
                 "\na) ATTACK" +
                 "\nb) TURN BACK " +
+                "\nc) RUN" +
                 "\nPlease enter your input >>> ");
 
-        if (in.equals("a")) {
-            fightCreature(creature, player);
-        } else {
-            retreat(player);
+        boolean error = true;
+
+        while (error) {
+            error = false;
+
+            switch (in) {
+                case "a":
+                    fightCreature(creature, player);
+                    break;
+                case "b":
+                    retreat(player);
+                    break;
+                case "c":
+                    run(creature, player);
+                    break;
+            }
+
         }
     }
 
@@ -603,14 +622,25 @@ public class Main {
         directionOptions(player);
     }
 
+    public static void run(Creature creature, Player player) {
+        if (getCreatureSpeed(creature) > getPlayerSpeed(player)) {
+            print("\nYou're too slow! " + getCreatureName(creature) + " has caught up with you... ");
+            fightCreature(creature, player);
+        } else {
+            print("\nYou out ran the " + getCreatureName(creature));
+        }
+
+    }
+
     //attack options for the player, carrying out the attack
     public static boolean playerAttack(Player player, Creature creature) {
         char attack;
         boolean error = true;
         while (error) {
+            error = false;
+
             print("\n" + getPlayerName(player) + "'s health: " + getPlayerHealth(player) + "\n" + getCreatureName(creature) + "'s health: " + getCreatureHealth(creature) + "\n");
 
-            error = false;
 
             String in = inputString("\nChoice your attack: " +
                     "\na)Slash" +
@@ -620,26 +650,33 @@ public class Main {
                     "\nPlease enter here >>> ");
             print(in);
 
-            attack = in.charAt(0);
-            //makes sure the string character entered is between the characters ('a' and 'b') and that the string is a length of 1
-            if ((attack >= 97 && attack <=101)) {
-                int creatureHealth = getCreatureHealth(creature);
-                int playerStrength = getPlayerStrength(player);
-                switch (attack) {
-                    case 'a':
-                        setCreatureHealth(creature, creatureHealth - playerStrength);
-                        return false;
-                    case 'b':
-                        setCreatureHealth(creature,   (int)(creatureHealth - playerStrength * 0.75));
-                        return false;
-                    case 'c':
-                        setCreatureHealth(creature, (int) (creatureHealth - playerStrength * 0.8));
-                        return false;
-                    case 'd':
-                        return true;
+            if (in.length()>0) {
+                attack = in.charAt(0);
+                //makes sure the string character entered is between the characters ('a' and 'b') and that the string is a length of 1
+                if ((attack >= 97 && attack <=101)) {
+                    int creatureHealth = getCreatureHealth(creature);
+                    int playerStrength = getPlayerStrength(player);
+                    switch (attack) {
+                        case 'a':
+                            setCreatureHealth(creature, creatureHealth - playerStrength);
+                            return false;
+                        case 'b':
+                            setCreatureHealth(creature,   (int)(creatureHealth - playerStrength * 0.75));
+                            return false;
+                        case 'c':
+                            setCreatureHealth(creature, (int) (creatureHealth - playerStrength * 0.8));
+                            return false;
+                        case 'd':
+                            return true;
+                    }
+                } else {
+                    error = true;
                 }
             } else {
                 error = true;
+            }
+            if (error) {
+                print("\nPlease enter a valid input... (a, b, c, d)");
             }
         }
         return false;
@@ -649,7 +686,6 @@ public class Main {
     public static void creatureAttack(Player player, Creature creature, boolean dodge) {
         if (!dodge) {
             setPlayerHealth(player, (getPlayerHealth(player) - getCreatureDamage(creature)));
-            print("\n" + getPlayerName(player) + " health: " + getPlayerHealth(player) + "\n" + getCreatureName(creature) + " health: " + getCreatureHealth(creature));
         } else {
             print("\nNice dodge! ");
         }
