@@ -24,7 +24,57 @@ public class Main {
         int inventory;
         Surrounding previousLocation;
         Surrounding currentLocation;
+
+        List<Food> foodInventory = new ArrayList<>() ;
+        List<Weapon> weaponInventory = new ArrayList<>();
     }
+
+    public static void addFoodToInventory(Food item, Player player) {
+        int inventory = getPlayerInventory(player);
+        print(inventory+" inventory val");
+        int size;
+        if (getPlayerFoodInventory(player) == null) {
+            size = 0;
+        } else {
+            size = getPlayerFoodInventory(player).size();
+        }
+        if (size < inventory) {
+            for (int i = 0; i <= size; i++) {
+                getPlayerFoodInventory(player).add(item);
+                print("done3");
+            }
+        }
+    }
+
+    public static void addWeaponToInventory(Weapon item, Player player) {
+        int inventory = getPlayerInventory(player);
+        int size = getPlayerWeaponInventory(player).size();
+        if (size < inventory) {
+            for (int i = 0; i < inventory; i++) {
+                if (getPlayerWeaponInventory(player).get(i) == null) {
+                    getPlayerWeaponInventory(player).add(item);
+                }
+            }
+        }
+        for (int i = 0; i < size; i++) {
+            print((i+1)+") " + getPlayerWeaponInventory(player).get(i).name);
+        }
+    }
+
+    public static void printFoodList(Player player) {
+        int size = getPlayerFoodInventory(player).size();
+        for (int i = 0; i < size; i++) {
+            print("\n"+(i+1)+") " + getPlayerFoodInventory(player).get(i).name);
+        }
+    }
+
+    public static void printWeaponList(Player player) {
+        int size = getPlayerWeaponInventory(player).size();
+        for (int i = 0; i < size; i++) {
+            print("\n"+(i+1)+") " + getPlayerWeaponInventory(player).get(i).name);
+        }
+    }
+
 
     //create player records
     public static void createPlayerRecord(Player player, String name) {
@@ -94,6 +144,14 @@ public class Main {
         return player.previousLocation;
     }
 
+    public static List<Food> getPlayerFoodInventory(Player player) {
+        return player.foodInventory;
+    }
+
+    public static List<Weapon> getPlayerWeaponInventory(Player player) {
+        return player.weaponInventory;
+    }
+
 
     //method to create player record
     public static Player playerCreator() {
@@ -122,7 +180,7 @@ public class Main {
     //food info setup
     public static class Food {
         public static Food[] foodArray;
-        String foodName;
+        String name;
         int foodValue;
         int inventorySpace;
     }
@@ -141,7 +199,7 @@ public class Main {
 
     //create food records
     public static Food createFoodRecords(Food food, String foodName, int foodValue, int foodSpace) {
-        food.foodName = foodName;
+        food.name = foodName;
         food.foodValue = foodValue;
         food.inventorySpace = foodSpace;
         return food;
@@ -151,8 +209,8 @@ public class Main {
     //weapon info setup
     public static class Weapon {
         public static Weapon[] weaponArray;
-        String weaponName;
-        double strengthIncrease;
+        String name;
+        int strengthIncrease;
         int inventorySpace;
     }
 
@@ -160,7 +218,7 @@ public class Main {
     //creature info setup
     public static class Creature {
         public static Creature[] creatureArray;
-        String creatureName;
+        String name;
         boolean agro;
         int damage;
         int health;
@@ -170,7 +228,7 @@ public class Main {
     }
 
     //array of in-game creatures
-    public static Creature[] creatureArray() {
+    public static void creatureArray() {
         Creature c1 = new Creature();
         Creature c2 = new Creature();
         Creature c3 = new Creature();
@@ -179,7 +237,7 @@ public class Main {
         Creature c6 = new Creature();
         Creature c7 = new Creature();
 
-        return Creature.creatureArray = new Creature[]{
+        Creature.creatureArray = new Creature[]{
                 createCreatureRecords(c1, "Bear", true, 10, 100, 15, 5, false),
                 createCreatureRecords(c2, "Dragon", true, 25, 100, 40, 20, true),
                 createCreatureRecords(c3, "Troll", true, 10, 100, 5, 5, false),
@@ -205,7 +263,7 @@ public class Main {
 
     //setters
     public static void setCreatureName(Creature creature, String creatureName) {
-        creature.creatureName = creatureName;
+        creature.name = creatureName;
     }
 
     public static void setCreatureAgro(Creature creature, boolean agro) {
@@ -234,7 +292,7 @@ public class Main {
 
     //getters
     public static String getCreatureName(Creature creature) {
-        return creature.creatureName;
+        return creature.name;
     }
 
     public static boolean getCreatureAgro(Creature creature) {
@@ -709,11 +767,14 @@ public class Main {
             respawn(player);
         } else {
             print(getCreatureName(creature) + " is dead... ");
+            if (getCreatureAgro(creature)) {
+
+            }
         }
     }
 
     //handles the main inputs from the user, then calling the correct methods for the inputs
-    public static String inputHandler(Player player) {
+    public static void inputHandler(Player player) {
         boolean validIn = false;
         boolean newLocation = false;
         setPlayerPreviousLocation(player, getPlayerCurrentLocation(player));
@@ -759,7 +820,6 @@ public class Main {
         }
         locationOptions(getPlayerCurrentLocation(player), player);
         directionOptions(player);
-        return getSurroundingName(getPlayerCurrentLocation(player));
     }
 
     public static void mapOptions(Player player) {
@@ -867,6 +927,19 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        loadGame();
+        //loadGame();
+        Food food1 = new Food();
+        Food food2 = new Food();
+        Food food3 = new Food();
+        Food food4 = new Food();
+        food1.name = "yogurt";
+
+        Player player = new Player();
+        player.inventory = 10;
+
+        addFoodToInventory(food1, player);
+
+        printFoodList(player);
+
     }
 }
