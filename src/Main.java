@@ -29,9 +29,114 @@ public class Main {
         List<Weapon> weaponInventory = new ArrayList<>();
     }
 
-    public static void addFoodToInventory(Food item, Player player) {
+    //bubble sort
+    public static void bubbleSort(List<Food> list, List<Weapon> list1) {
+        if (list1 == null) {
+            int n = list.size();
+            for (int i = 0; i < n-1; i++) {
+                for (int j = 0; j < n - i - 1; j++) {
+                    if (compareStrings(list.get(j).toString(), list.get(j + 1).toString())) {
+                        // swap arr[j+1] and arr[j]
+                        Food temp = list.get(j);
+                        list.add(j, list.get(j + 1));
+                        list.add(j + 1, temp);
+                    }
+                }
+            }
+        } else {
+            int n = list1.size();
+            for (int i = 0; i < n-1; i++) {
+                for (int j = 0; j < n - i - 1; j++) {
+                    if (compareStrings(list1.get(j).toString(), list1.get(j + 1).toString())) {
+                        // swap arr[j+1] and arr[j]
+                        Weapon temp = list1.get(j);
+                        list1.add(j, list1.get(j + 1));
+                        list1.add(j + 1, temp);
+                    }
+                }
+            }
+        }
+    }
+
+
+    public static boolean compareStrings(String arg1, String arg2) {
+        int arg1Len = arg1.length();
+        int arg2Len = arg2.length();
+
+        if (arg1Len < arg2Len) {
+            String temp;
+            temp = arg1;
+            arg1 = arg2;
+            arg2 = temp;
+
+            arg1Len = arg1.length();
+        }
+        for (int i = 0; i < arg1Len; i++) {
+            if (arg1.charAt(i) > arg2.charAt(i)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void manageFoodInventory(Player player) {
+        printFoodList(player);
+        boolean error = true;
+        while (error) {
+            error = false;
+            String in = inputString("\na) Remove item from inventory" +
+                    "\nb) Sort inventory" +
+                    "\nc) Leave inventory management");
+            if (in.length()==0) {
+                error = true;
+            } else {
+                char chIn = in.toLowerCase().charAt(0);
+                switch (chIn) {
+                    case 'a':
+                        int i = Integer.parseInt(inputString("\nPlease enter the position of the item >>> "));
+                        removeFoodFromInventory(i, player);
+                        break;
+                    case 'b':
+                        bubbleSort(getPlayerFoodInventory(player), null);
+                }
+            }
+        }
+    }
+
+    public static void manageWeaponInventory(Player player) {
+        printWeaponList(player);
+        boolean error = true;
+        while (error) {
+            error = false;
+            String in = inputString("\na) Remove item from inventory" +
+                    "\nb) Sort inventory" +
+                    "\nc) Leave inventory management");
+            if (in.length()==0) {
+                error = true;
+            } else {
+                char chIn = in.toLowerCase().charAt(0);
+                switch (chIn) {
+                    case 'a':
+                        int i = Integer.parseInt(inputString("\nPlease enter the position of the item >>> "));
+                        removeWeaponFromInventory(i, player);
+                        break;
+                    case 'b':
+                        bubbleSort(null, getPlayerWeaponInventory(player));
+                }
+            }
+        }
+    }
+
+    public static int getFoodListSize(Player player) {
+        return player.foodInventory.size();
+    }
+
+    public static int getWeaponListSize(Player player) {
+        return player.weaponInventory.size();
+    }
+
+    public static String addFoodToInventory(Food item, Player player) {
         int inventory = getPlayerInventory(player);
-        print(inventory+" inventory val");
         int size;
         if (getPlayerFoodInventory(player) == null) {
             size = 0;
@@ -41,28 +146,42 @@ public class Main {
         if (size < inventory) {
             for (int i = 0; i <= size; i++) {
                 getPlayerFoodInventory(player).add(item);
-                print("done3");
             }
+        } else {
+            return "\nInventory is full";
         }
+        return "\nerror";
     }
 
-    public static void addWeaponToInventory(Weapon item, Player player) {
+    public static String addWeaponToInventory(Weapon item, Player player) {
         int inventory = getPlayerInventory(player);
-        int size = getPlayerWeaponInventory(player).size();
+        int size;
+        if (getPlayerWeaponInventory(player) == null) {
+            size = 0;
+        } else {
+            size = getPlayerWeaponInventory(player).size();
+        }
         if (size < inventory) {
-            for (int i = 0; i < inventory; i++) {
-                if (getPlayerWeaponInventory(player).get(i) == null) {
-                    getPlayerWeaponInventory(player).add(item);
-                }
+            for (int i = 0; i <= size; i++) {
+                getPlayerWeaponInventory(player).add(item);
             }
+        } else {
+            return "\nInventory is full";
         }
-        for (int i = 0; i < size; i++) {
-            print((i+1)+") " + getPlayerWeaponInventory(player).get(i).name);
-        }
+        return "\nerror";
+    }
+
+    public static void removeFoodFromInventory(int i, Player player) {
+        getPlayerFoodInventory(player).remove(i-1);
+    }
+
+    public static void removeWeaponFromInventory(int i, Player player) {
+        getPlayerWeaponInventory(player).remove(i-1);
     }
 
     public static void printFoodList(Player player) {
         int size = getPlayerFoodInventory(player).size();
+        print("\n--Inventory--");
         for (int i = 0; i < size; i++) {
             print("\n"+(i+1)+") " + getPlayerFoodInventory(player).get(i).name);
         }
@@ -182,7 +301,7 @@ public class Main {
         public static Food[] foodArray;
         String name;
         int foodValue;
-        int inventorySpace;
+        int foodSpace;
     }
 
     //array of in-game food
@@ -190,19 +309,52 @@ public class Main {
         Food f1 = new Food();
         Food f2 = new Food();
         Food f3 = new Food();
+        Food f4 = new Food();
+        Food f5 = new Food();
+        Food f6 = new Food();
 
         return Food.foodArray = new Food[]{
                 createFoodRecords(f1, "Apple", 5, 2),
                 createFoodRecords(f2, "Protein Bar", 15, 5),
-                createFoodRecords(f3, "Complete Nutri Bar", 30, 10)};
+                createFoodRecords(f3, "Steak", 30, 10),
+                createFoodRecords(f4, "Fish", 20, 5),
+                createFoodRecords(f5, "Nuts", 5, 2),
+                createFoodRecords(f6, "Banana", 8, 3)
+        };
     }
 
     //create food records
-    public static Food createFoodRecords(Food food, String foodName, int foodValue, int foodSpace) {
-        food.name = foodName;
-        food.foodValue = foodValue;
-        food.inventorySpace = foodSpace;
+    public static Food createFoodRecords(Food food, String name, int foodValue, int foodSpace) {
+        setFoodName(food, name);
+        setFoodValue(food, foodValue);
+        setFoodSpace(food, foodSpace);
         return food;
+    }
+
+    //setters
+    public static void setFoodName(Food food, String name) {
+        food.name = name;
+    }
+
+    public static void setFoodValue(Food food, int foodValue) {
+        food.foodValue = foodValue;
+    }
+
+    public static void setFoodSpace(Food food, int foodSpace) {
+        food.foodSpace = foodSpace;
+    }
+
+    //getters
+    public static String getFoodName(Food food) {
+        return food.name;
+    }
+
+    public static int getFoodValue(Food food) {
+        return food.foodValue;
+    }
+
+    public static int getFoodSpace(Food food) {
+        return food.foodSpace;
     }
 
     //WEAPON CODE
@@ -212,6 +364,57 @@ public class Main {
         String name;
         int strengthIncrease;
         int inventorySpace;
+    }
+
+    public static Weapon[] weaponArray() {
+        Weapon weapon1 = new Weapon();
+        Weapon weapon2 = new Weapon();
+        Weapon weapon3 = new Weapon();
+        Weapon weapon4 = new Weapon();
+        Weapon weapon5 = new Weapon();
+        Weapon weapon6 = new Weapon();
+
+        return Weapon.weaponArray = new Weapon[]{
+                createWeaponRecords(weapon1, "Dark Sword", 20, 10),
+                createWeaponRecords(weapon2, "Brass Axe", 15, 12),
+                createWeaponRecords(weapon3, "Long Bow", 10, 8),
+                createWeaponRecords(weapon4, "Cross Bow", 15, 7),
+                createWeaponRecords(weapon5, "Lightning Rod", 30, 20),
+                createWeaponRecords(weapon6, "Bat", 5, 5)
+        };
+    }
+
+    public static Weapon createWeaponRecords(Weapon weapon, String name, int strengthIncrease, int inventorySpace) {
+        setWeaponName(weapon, name);
+        setStrengthIncrease(weapon, strengthIncrease);
+        setInventorySpace(weapon, inventorySpace);
+        return weapon;
+    }
+
+    //setters
+    public static void setWeaponName(Weapon weapon, String name) {
+        weapon.name = name;
+    }
+
+    public static void setStrengthIncrease(Weapon weapon, int strengthIncrease) {
+        weapon.strengthIncrease = strengthIncrease;
+    }
+
+    public static void setInventorySpace(Weapon weapon, int inventorySpace) {
+        weapon.inventorySpace = inventorySpace;
+    }
+
+    //getters
+    public static String getWeaponName(Weapon weapon) {
+        return weapon.name;
+    }
+
+    public static int getStrengthIncrease(Weapon weapon) {
+        return weapon.strengthIncrease;
+    }
+
+    public static int getInventorySpace(Weapon weapon) {
+        return  weapon.inventorySpace;
     }
 
     //CREATURE CODE
@@ -514,6 +717,12 @@ public class Main {
         return food[random.nextInt((max)-1)];
     }
 
+    public static Weapon randomWeapon(Weapon[] weapons) {
+        Random random = new Random();
+        int max = weapons.length;
+        return weapons[random.nextInt((max)-1)];
+    }
+
     //reads file data
     private static void readFile(String fileName) {
 
@@ -767,10 +976,83 @@ public class Main {
             respawn(player);
         } else {
             print(getCreatureName(creature) + " is dead... ");
-            if (getCreatureAgro(creature)) {
+            if (!getCreatureAgro(creature) && getPlayerHealth(player) <=90) {
+                setPlayerHealth(player, getPlayerHealth(player)+10);
+            } else {
+                setPlayerHealth(player, 100);
+            }
+            locationItems(player);
+        }
+    }
 
+    public static void locationItems(Player player) {
+        Random random1 = new Random();
+        Random random2 = new Random();
+        Food food;
+        Weapon weapon;
+        int foodChance = random1.nextInt(100);
+        int weaponChance = random2.nextInt(100);
+        if (foodChance > 30) {
+            food = randomFood(foodArray());
+            print("\nYou have found: " +
+                    "\nName: " + getFoodName(food) +
+                    "\nValue: " + getFoodValue(food) +
+                    "\nSpace: " + getFoodSpace(food) +
+                    "\nSpace available: " + (getPlayerInventory(player) - getFoodListSize(player)));
+            itemHandler("food", player, food, null);
+
+        }
+        if (weaponChance > 15) {
+            weapon = randomWeapon(weaponArray());
+            print("\nYou have found: " +
+                    "\nName: " + getWeaponName(weapon) +
+                    "\nStrength Increase: " + getStrengthIncrease(weapon) +
+                    "\nSpace: " + getInventorySpace(weapon) +
+                    "\nSpace available: " + (getPlayerInventory(player) - getWeaponListSize(player)));
+            itemHandler("weapon", player, null, weapon);
+        }
+    }
+
+    public static void itemHandler(String type, Player player, Food food, Weapon weapon) {
+        boolean error = true;
+        while (error) {
+            error = false;
+            String in = inputString(
+                    "\n\nWould you like to collect the item? " +
+                            "\na) Collect" +
+                            "\nb) Manage inventory" +
+                            "\nc) Leave item");
+            if (in.length() == 0) {
+                error = true;
+            } else {
+                char chIn = in.toLowerCase().charAt(0);
+                switch (chIn) {
+                    case 'a':
+                        switch (type) {
+                            case "food":
+                                print(addFoodToInventory(food, player));
+                                break;
+                            case "weapon":
+                                print(addWeaponToInventory(weapon, player));
+                        }
+                        break;
+                    case 'b':
+                        switch (type) {
+                            case "food":
+                                manageFoodInventory(player);
+                                break;
+                            case "weapon":
+                                manageWeaponInventory(player);
+                                break;
+                        }
+                        break;
+                    case 'c':
+                        break;
+                }
             }
         }
+
+
     }
 
     //handles the main inputs from the user, then calling the correct methods for the inputs
@@ -927,19 +1209,6 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        //loadGame();
-        Food food1 = new Food();
-        Food food2 = new Food();
-        Food food3 = new Food();
-        Food food4 = new Food();
-        food1.name = "yogurt";
-
-        Player player = new Player();
-        player.inventory = 10;
-
-        addFoodToInventory(food1, player);
-
-        printFoodList(player);
-
+        loadGame();
     }
 }
