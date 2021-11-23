@@ -22,6 +22,8 @@ public class Main {
         int speed;
         int strength;
         int inventory;
+        int xp;
+        Weapon currentWeapon;
         Surrounding previousLocation;
         Surrounding currentLocation;
 
@@ -86,18 +88,23 @@ public class Main {
             error = false;
             String in = inputString("\na) Remove item from inventory" +
                     "\nb) Sort inventory" +
-                    "\nc) Leave inventory management");
+                    "\nc) Leave inventory management" +
+                    "\n Please enter input >>> ");
             if (in.length()==0) {
                 error = true;
             } else {
                 char chIn = in.toLowerCase().charAt(0);
                 switch (chIn) {
                     case 'a':
-                        int i = Integer.parseInt(inputString("\nPlease enter the position of the item >>> "));
-                        removeFoodFromInventory(i, player);
+                        int i = Integer.parseInt(inputString("\nPlease enter the position of the item or '0' to cancel >>> "));
+                        if (i != 0) {
+                            removeFoodFromInventory(i, player);
+                        }
                         break;
                     case 'b':
                         bubbleSort(getPlayerFoodInventory(player), null);
+                    case 'c':
+                        break;
                 }
             }
         }
@@ -106,22 +113,34 @@ public class Main {
     public static void manageWeaponInventory(Player player) {
         printWeaponList(player);
         boolean error = true;
+        int i;
         while (error) {
             error = false;
             String in = inputString("\na) Remove item from inventory" +
                     "\nb) Sort inventory" +
-                    "\nc) Leave inventory management");
+                    "\nc) Change primary weapon" +
+                    "\nd) Leave inventory management" +
+                    "\n Please enter input >>> ");
             if (in.length()==0) {
                 error = true;
             } else {
                 char chIn = in.toLowerCase().charAt(0);
                 switch (chIn) {
                     case 'a':
-                        int i = Integer.parseInt(inputString("\nPlease enter the position of the item >>> "));
-                        removeWeaponFromInventory(i, player);
+                        i = Integer.parseInt(inputString("\nPlease enter the position of the item >>> "));
+                        removeWeaponFromInventory(i-1, player);
                         break;
                     case 'b':
                         bubbleSort(null, getPlayerWeaponInventory(player));
+                        break;
+                    case 'c':
+                        printWeaponList(player);
+                        i = Integer.parseInt(inputString("\nPlease enter the positon of the item >>> "));
+                        setPlayerCurrentWeapon(player,  getPlayerWeaponInventory(player).get(i-1));
+                        setPlayerStrength(player, getPlayerStrength(player) + getStrengthIncrease(getPlayerCurrentWeapon(player)));
+                        break;
+                    case 'd':
+                        break;
                 }
             }
         }
@@ -136,39 +155,30 @@ public class Main {
     }
 
     public static String addFoodToInventory(Food item, Player player) {
+        print(item.name);
         int inventory = getPlayerInventory(player);
-        int size;
-        if (getPlayerFoodInventory(player) == null) {
-            size = 0;
-        } else {
-            size = getPlayerFoodInventory(player).size();
-        }
-        if (size < inventory) {
-            for (int i = 0; i <= size; i++) {
-                getPlayerFoodInventory(player).add(item);
-            }
+        int size = getFoodInventorySize(player);
+        int remaining = inventory - size;
+
+        if (getFoodSpace(item) < remaining) {
+            getPlayerFoodInventory(player).add(item);
+            return "\nItem added to the list\n";
         } else {
             return "\nInventory is full";
         }
-        return "\nerror";
     }
 
     public static String addWeaponToInventory(Weapon item, Player player) {
         int inventory = getPlayerInventory(player);
-        int size;
-        if (getPlayerWeaponInventory(player) == null) {
-            size = 0;
+        int size = getWeaponInventorySize(player);
+        int remaining = inventory - size;
+
+        if (getInventorySpace(item) < remaining) {
+            getPlayerWeaponInventory(player).add(item);
+            return "\n" + item.name + " added to the list";
         } else {
-            size = getPlayerWeaponInventory(player).size();
+            return "\nError: Inventory is full";
         }
-        if (size < inventory) {
-            for (int i = 0; i <= size; i++) {
-                getPlayerWeaponInventory(player).add(item);
-            }
-        } else {
-            return "\nInventory is full";
-        }
-        return "\nerror";
     }
 
     public static void removeFoodFromInventory(int i, Player player) {
@@ -179,30 +189,51 @@ public class Main {
         getPlayerWeaponInventory(player).remove(i-1);
     }
 
+    public static int getFoodInventorySize(Player player) {
+        int size = 0;
+        for (int i = 0; i < getFoodListSize(player); i++) {
+            size += getFoodSpace(getPlayerFoodInventory(player).get(i));
+        }
+        return size;
+    }
+
+    public static int getWeaponInventorySize(Player player) {
+        int size = 0;
+        for (int i = 0; i < getWeaponListSize(player); i++) {
+            size += getInventorySpace(getPlayerWeaponInventory(player).get(i));
+        }
+        return size;
+    }
+
     public static void printFoodList(Player player) {
         int size = getPlayerFoodInventory(player).size();
         print("\n--Inventory--");
         for (int i = 0; i < size; i++) {
-            print("\n"+(i+1)+") " + getPlayerFoodInventory(player).get(i).name);
+            print("\nName: "+(i+1)+") " + getFoodName(getPlayerFoodInventory(player).get(i)) + "\nSpace: " + getFoodSpace(getPlayerFoodInventory(player).get(i)));
         }
+        print("\n");
     }
 
     public static void printWeaponList(Player player) {
         int size = getPlayerWeaponInventory(player).size();
         for (int i = 0; i < size; i++) {
-            print("\n"+(i+1)+") " + getPlayerWeaponInventory(player).get(i).name);
+            print("\nName: "+(i+1)+") " + getWeaponName(getPlayerWeaponInventory(player).get(i)) + "\nSpace: " + getInventorySpace(getPlayerWeaponInventory(player).get(i)));
         }
+        print("\n");
     }
 
 
     //create player records
     public static void createPlayerRecord(Player player, String name) {
+        setPlayerInventory(player, 10);
+        addWeaponToInventory(getWeaponArray()[0], player);
         setPlayerName(player, name);
         setPlayerHealth(player, 100);
         setPlayerSpeed(player, 10);
-        setPlayerStrength(player, 12);
-        setPlayerInventory(player, 10);
+        setPlayerCurrentWeapon(player, getPlayerWeaponInventory(player).get(0));
+        setPlayerStrength(player, 12 + getPlayerCurrentWeapon(player).strengthIncrease);
         setPlayerCurrentLocation(player, getLocation("Crash Site"));
+
     }
 
     //setters
@@ -234,6 +265,14 @@ public class Main {
         player.previousLocation = previousLocation;
     }
 
+    public static void setPlayerXP(Player player, int xp) {
+        player.xp = xp;
+    }
+
+    public static void setPlayerCurrentWeapon(Player player, Weapon weapon) {
+        player.currentWeapon = weapon;
+    }
+
     //getters
     public static String getPlayerName(Player player) {
         return player.name;
@@ -263,6 +302,14 @@ public class Main {
         return player.previousLocation;
     }
 
+    public static int getPlayerXP(Player player) {
+        return player.xp;
+    }
+
+    public static Weapon getPlayerCurrentWeapon(Player player) {
+        return player.currentWeapon;
+    }
+
     public static List<Food> getPlayerFoodInventory(Player player) {
         return player.foodInventory;
     }
@@ -275,6 +322,7 @@ public class Main {
     //method to create player record
     public static Player playerCreator() {
         String name;
+        weaponArray();
 
         boolean nameCreated = false;
         Player player = new Player();
@@ -367,6 +415,7 @@ public class Main {
     }
 
     public static Weapon[] weaponArray() {
+        Weapon weapon0 = new Weapon();
         Weapon weapon1 = new Weapon();
         Weapon weapon2 = new Weapon();
         Weapon weapon3 = new Weapon();
@@ -375,6 +424,7 @@ public class Main {
         Weapon weapon6 = new Weapon();
 
         return Weapon.weaponArray = new Weapon[]{
+                createWeaponRecords(weapon0, "Fist", 0, 0),
                 createWeaponRecords(weapon1, "Dark Sword", 20, 10),
                 createWeaponRecords(weapon2, "Brass Axe", 15, 12),
                 createWeaponRecords(weapon3, "Long Bow", 10, 8),
@@ -382,6 +432,10 @@ public class Main {
                 createWeaponRecords(weapon5, "Lightning Rod", 30, 20),
                 createWeaponRecords(weapon6, "Bat", 5, 5)
         };
+    }
+
+    public static Weapon[] getWeaponArray() {
+        return Weapon.weaponArray;
     }
 
     public static Weapon createWeaponRecords(Weapon weapon, String name, int strengthIncrease, int inventorySpace) {
@@ -417,6 +471,20 @@ public class Main {
         return  weapon.inventorySpace;
     }
 
+    //returns the location in the abstract data type, Surrounding, using the name provided
+    public static Weapon getWeapon(String name, Player player){
+        int length = getWeaponListSize(player);
+        for (int i = 0; i<length; i++) {
+
+            if (getWeaponArray()[i] != null) {
+                if ((getWeaponName(weaponArray()[i])).equals(name)) {
+                    return weaponArray()[i];
+                }
+            }
+        }
+        return getWeaponArray()[0];
+    }
+
     //CREATURE CODE
     //creature info setup
     public static class Creature {
@@ -427,7 +495,6 @@ public class Main {
         int health;
         int speed;
         int xp;
-        boolean food;
     }
 
     //array of in-game creatures
@@ -441,26 +508,25 @@ public class Main {
         Creature c7 = new Creature();
 
         Creature.creatureArray = new Creature[]{
-                createCreatureRecords(c1, "Bear", true, 10, 100, 15, 5, false),
-                createCreatureRecords(c2, "Dragon", true, 25, 100, 40, 20, true),
-                createCreatureRecords(c3, "Troll", true, 10, 100, 5, 5, false),
-                createCreatureRecords(c4, "Wolf", true, 15, 100, 35, 15, false),
-                createCreatureRecords(c5, "Cow", false, 0, 100, 10, 0, true),
-                createCreatureRecords(c6, "Cat", false, 5, 100, 20, 0, false),
-                createCreatureRecords(c7, "Dog", false, 10, 100, 20, 0, false),
-                createCreatureRecords(c7, "Sheep", false, 0, 100, 10, 0, true)
+                createCreatureRecords(c1, "Bear", true, 10, 100, 15, 5),
+                createCreatureRecords(c2, "Dragon", true, 25, 100, 40, 20),
+                createCreatureRecords(c3, "Troll", true, 10, 100, 5, 5),
+                createCreatureRecords(c4, "Wolf", true, 15, 100, 35, 15),
+                createCreatureRecords(c5, "Cow", false, 0, 100, 10, 0),
+                createCreatureRecords(c6, "Cat", false, 5, 100, 20, 0),
+                createCreatureRecords(c7, "Dog", false, 10, 100, 20, 0),
+                createCreatureRecords(c7, "Sheep", false, 0, 100, 10, 0)
         };
     }
 
     //create creature records
-    public static Creature createCreatureRecords(Creature creature, String creatureName, boolean agro, int damage, int health, int speed, int xp, boolean food) {
+    public static Creature createCreatureRecords(Creature creature, String creatureName, boolean agro, int damage, int health, int speed, int xp) {
         setCreatureName(creature, creatureName);
         setCreatureAgro(creature, agro);
         setCreatureDamage(creature, damage);
         setCreatureHealth(creature, health);
         setCreatureSpeed(creature, speed);
         setCreatureXP(creature, xp);
-        setCreatureFood(creature, food);
         return creature;
     }
 
@@ -489,10 +555,6 @@ public class Main {
         creature.xp = xp;
     }
 
-    public static void setCreatureFood(Creature creature, boolean food) {
-        creature.food = food;
-    }
-
     //getters
     public static String getCreatureName(Creature creature) {
         return creature.name;
@@ -518,16 +580,8 @@ public class Main {
         return creature.xp;
     }
 
-    public static boolean getCreatureFood(Creature creature) {
-        return creature.food;
-    }
-
     public static Creature[] getCreatureArray() {
         return Creature.creatureArray;
-    }
-
-    public static void creatureInteraction() {
-
     }
 
     //boss creatures?? (maybe later)
@@ -686,7 +740,7 @@ public class Main {
         }
         //debugging purposes, shouldn't be printed unless there's an error
         //array size should be the exact size that is possible in the game
-        print("ERROR: Array is full");
+        print("Error: Array is full");
     }
 
     //prints the array of visited locations in a list format
@@ -720,7 +774,12 @@ public class Main {
     public static Weapon randomWeapon(Weapon[] weapons) {
         Random random = new Random();
         int max = weapons.length;
-        return weapons[random.nextInt((max)-1)];
+        int randomVal = random.nextInt((max)-1);
+        if (randomVal == 0) {
+            return randomWeapon(weapons);
+        } else {
+            return weapons[random.nextInt((max) - 1)];
+        }
     }
 
     //reads file data
@@ -823,9 +882,9 @@ public class Main {
     public static void passiveCreatureOptions(Creature creature, Player player) {
         String in = inputString("\nThe " + getCreatureName(creature) + " is a passive creature." +
                 "\nWould you like to: " +
-                "\na) ATTACK" +
-                "\nb) PET" +
-                "\nc) LEAVE ALONE" +
+                "\na) ATTACK 'a'" +
+                "\nb) PET 'b'" +
+                "\nc) LEAVE ALONE 'c'" +
                 "\nPlease enter your input >>> ");
         switch (in.toLowerCase()) {
             case "a":
@@ -851,9 +910,9 @@ public class Main {
     public static void agroCreatureOptions(Creature creature, Player player) {
         String in = inputString("\nWould you like to pass this way or turn back? The " + getCreatureName(creature) + " is not a passive creature." +
                 "\nWould you like to: " +
-                "\na) ATTACK" +
-                "\nb) TURN BACK " +
-                "\nc) RUN" +
+                "\na) ATTACK 'a'" +
+                "\nb) TURN BACK 'b'" +
+                "\nc) RUN 'c'" +
                 "\nPlease enter your input >>> ");
 
         boolean error = true;
@@ -884,6 +943,7 @@ public class Main {
 
     //respawn method, which sets players location to the crash site and sets their health back to 100
     public static void respawn(Player player) {
+        print("\nYou died... \n");
         setPlayerCurrentLocation(player, getLocation("Crash Site"));
         setPlayerHealth(player, 100);
         directionOptions(player);
@@ -910,12 +970,11 @@ public class Main {
 
 
             String in = inputString("\nChoice your attack: " +
-                    "\na)Slash" +
-                    "\nb)Punch" +
-                    "\nc)Kick" +
-                    "\nd)Dodge" +
+                    "\na)Slash 'a'" +
+                    "\nb)Punch 'b'" +
+                    "\nc)Kick 'c'" +
+                    "\nd)Dodge 'd'" +
                     "\nPlease enter here >>> ");
-            print(in);
 
             if (in.length()>0) {
                 attack = in.charAt(0);
@@ -925,12 +984,15 @@ public class Main {
                     int playerStrength = getPlayerStrength(player);
                     switch (attack) {
                         case 'a':
+                            setPlayerXP(player, (int) (getPlayerXP(player) + getCreatureXP(creature)*0.5));
                             setCreatureHealth(creature, creatureHealth - playerStrength);
                             return false;
                         case 'b':
+                            setPlayerXP(player, (int) (getPlayerXP(player) + getCreatureXP(creature)*0.5));
                             setCreatureHealth(creature,   (int)(creatureHealth - playerStrength * 0.75));
                             return false;
                         case 'c':
+                            setPlayerXP(player, (int) (getPlayerXP(player) + getCreatureXP(creature)*0.5));
                             setCreatureHealth(creature, (int) (creatureHealth - playerStrength * 0.8));
                             return false;
                         case 'd':
@@ -943,7 +1005,7 @@ public class Main {
                 error = true;
             }
             if (error) {
-                print("\nPlease enter a valid input... (a, b, c, d)");
+                print("\nError: Please enter a valid input... (a, b, c, d)");
             }
         }
         return false;
@@ -976,6 +1038,8 @@ public class Main {
             respawn(player);
         } else {
             print(getCreatureName(creature) + " is dead... ");
+            setCreatureHealth(creature, 100);
+            setPlayerXP(player, (getPlayerXP(player) + getCreatureXP(creature)));
             if (!getCreatureAgro(creature) && getPlayerHealth(player) <=90) {
                 setPlayerHealth(player, getPlayerHealth(player)+10);
             } else {
@@ -994,7 +1058,7 @@ public class Main {
         int weaponChance = random2.nextInt(100);
         if (foodChance > 30) {
             food = randomFood(foodArray());
-            print("\nYou have found: " +
+            print("\n\nYou have found: " +
                     "\nName: " + getFoodName(food) +
                     "\nValue: " + getFoodValue(food) +
                     "\nSpace: " + getFoodSpace(food) +
@@ -1003,8 +1067,8 @@ public class Main {
 
         }
         if (weaponChance > 15) {
-            weapon = randomWeapon(weaponArray());
-            print("\nYou have found: " +
+            weapon = randomWeapon(getWeaponArray());
+            print("\n\nYou have found: " +
                     "\nName: " + getWeaponName(weapon) +
                     "\nStrength Increase: " + getStrengthIncrease(weapon) +
                     "\nSpace: " + getInventorySpace(weapon) +
@@ -1015,28 +1079,35 @@ public class Main {
 
     public static void itemHandler(String type, Player player, Food food, Weapon weapon) {
         boolean error = true;
+        String result;
         while (error) {
             error = false;
             String in = inputString(
                     "\n\nWould you like to collect the item? " +
                             "\na) Collect" +
                             "\nb) Manage inventory" +
-                            "\nc) Leave item");
-            if (in.length() == 0) {
+                            "\nc) Leave item" +
+                    "\nPlease enter here >>> ");
+            if (in.length() < 1) {
                 error = true;
             } else {
-                char chIn = in.toLowerCase().charAt(0);
-                switch (chIn) {
-                    case 'a':
+                switch (in.toLowerCase()) {
+                    case "a":
                         switch (type) {
                             case "food":
-                                print(addFoodToInventory(food, player));
+                                result = addFoodToInventory(food, player);
+                                print(result);
+
+                                error = result.contains("Error");
                                 break;
                             case "weapon":
-                                print(addWeaponToInventory(weapon, player));
+                                result = addWeaponToInventory(weapon, player);
+                                print(result);
+                                error = result.contains("Error");
+                                break;
                         }
                         break;
-                    case 'b':
+                    case "b":
                         switch (type) {
                             case "food":
                                 manageFoodInventory(player);
@@ -1046,7 +1117,7 @@ public class Main {
                                 break;
                         }
                         break;
-                    case 'c':
+                    case "c":
                         break;
                 }
             }
@@ -1116,7 +1187,7 @@ public class Main {
 
         while (run) {
             String in = inputString("\n -------------------------------------------------------------------------------------------------------------------------\n " +
-                    "\nPlease enter: \na: View Map 'a' \nb: View Visited locations 'b' \nc: Close MAP 'c' \nPlease enter your input >>> ");
+                    "\nPlease enter: \na) View Map 'a' \nb) View Visited locations 'b' \nc) Close MAP 'c' \nPlease enter your input >>> ");
             if (in.equalsIgnoreCase("a")||in.equalsIgnoreCase("b")||in.equalsIgnoreCase("c")) {
                 switch (in.toLowerCase()) {
                     case "a":
@@ -1145,7 +1216,7 @@ public class Main {
 
         while (run) {
             String in = inputString("\n -------------------------------------------------------------------------------------------------------------------------\n" +
-                    "\nPlease enter: \na: Save Game 'a' \nb: End Game 'b' \nc: Close Options Menu 'c' \nPlease enter your input >>> ");
+                    "\nPlease enter: \n): Save Game 'a' \nb) End Game 'b' \nc) View stats menu \nd) Manage weapons \ne) Close Options Menu 'c' \nPlease enter your input >>> ");
             if (in.equalsIgnoreCase("a")||in.equalsIgnoreCase("b")||in.equalsIgnoreCase("c")) {
                 switch (in.toLowerCase()) {
                     case "a":
@@ -1155,11 +1226,33 @@ public class Main {
                         stopGame();
                         break;
                     case "c":
+                        print(statsMenu(player));
+                        break;
+                    case "d":
+                        manageWeaponInventory(player);
+                        break;
+                    case "e":
                         run = false;
+                        break;
                 }
             }
         }
         directionOptions(player);
+    }
+
+    public static String statsMenu(Player player) {
+        return "  ____  _        _       \n" +
+                " / ___|| |_ __ _| |_ ___ \n" +
+                " \\___ \\| __/ _` | __/ __|\n" +
+                "  ___) | || (_| | |_\\__ \\\n" +
+                " |____/ \\__\\__,_|\\__|___/\n" +
+                "                         "+
+                "\n\nName: " + getPlayerName(player) +
+                "\nHealth: " + getPlayerHealth(player) +
+                "\nStrength: " + getPlayerStrength(player) +
+                "\nnSpeed: " + getPlayerSpeed(player) +
+                "\nInventory Space: " + getPlayerInventory(player) +
+                "\nCurrent Weapon: " + getWeaponName(getPlayerCurrentWeapon(player));
     }
 
     public static void stopGame() {
