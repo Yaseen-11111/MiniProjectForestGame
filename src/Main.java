@@ -93,18 +93,19 @@ public class Main {
             if (in.length()==0) {
                 error = true;
             } else {
-                char chIn = in.toLowerCase().charAt(0);
-                switch (chIn) {
-                    case 'a':
+                switch (in.toLowerCase()) {
+                    case "a":
                         int i = Integer.parseInt(inputString("\nPlease enter the position of the item or '0' to cancel >>> "));
                         if (i != 0) {
                             removeFoodFromInventory(i, player);
                         }
                         break;
-                    case 'b':
+                    case "b":
                         bubbleSort(getPlayerFoodInventory(player), null);
-                    case 'c':
                         break;
+                    case "c":
+                        break;
+
                 }
             }
         }
