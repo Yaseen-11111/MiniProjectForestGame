@@ -31,14 +31,109 @@ public class Main {
         List<Weapon> weaponInventory = new ArrayList<>();
     }
 
+    //create player records
+    public static void createPlayerRecord(Player player, String name) {
+        setPlayerInventory(player, 10);
+        addWeaponToInventory(getWeaponArray()[0], player);
+        setPlayerName(player, name);
+        setPlayerHealth(player, 100);
+        setPlayerSpeed(player, 10);
+        setPlayerCurrentWeapon(player, getPlayerWeaponInventory(player).get(0));
+        setPlayerStrength(player, 12 + getPlayerCurrentWeapon(player).strengthIncrease);
+        setPlayerCurrentLocation(player, getLocation("Crash Site"));
+
+    }
+
+    //setters
+    public static void setPlayerName(Player player, String name) {
+        player.name = name;
+    }
+
+    public static void setPlayerHealth(Player player, int health) {
+        player.health = health;
+    }
+
+    public static void setPlayerSpeed(Player player, int speed) {
+        player.speed = speed;
+    }
+
+    public static void setPlayerStrength(Player player, int strength) {
+        player.strength = strength;
+    }
+
+    public static void setPlayerInventory(Player player, int inventory) {
+        player.inventory = inventory;
+    }
+
+    public static void setPlayerCurrentLocation(Player player, Surrounding currentLocation) {
+        player.currentLocation = currentLocation;
+    }
+
+    public static void setPlayerPreviousLocation(Player player, Surrounding previousLocation) {
+        player.previousLocation = previousLocation;
+    }
+
+    public static void setPlayerXP(Player player, int xp) {
+        player.xp = xp;
+    }
+
+    public static void setPlayerCurrentWeapon(Player player, Weapon weapon) {
+        player.currentWeapon = weapon;
+    }
+
+    //getters
+    public static String getPlayerName(Player player) {
+        return player.name;
+    }
+
+    public static int getPlayerHealth(Player player) {
+        return player.health;
+    }
+
+    public static int getPlayerSpeed(Player player) { //needs imp
+        return player.speed;
+    }
+
+    public static int getPlayerStrength(Player player) { //needs imp
+        return player.strength;
+    }
+
+    public static int getPlayerInventory(Player player) { //needs imp
+        return player.inventory;
+    }
+
+    public static Surrounding getPlayerCurrentLocation(Player player) {
+        return player.currentLocation;
+    }
+
+    public static Surrounding getPlayerPreviousLocation(Player player) {
+        return player.previousLocation;
+    }
+
+    public static int getPlayerXP(Player player) {
+        return player.xp;
+    }
+
+    public static Weapon getPlayerCurrentWeapon(Player player) {
+        return player.currentWeapon;
+    }
+
+    public static List<Food> getPlayerFoodInventory(Player player) {
+        return player.foodInventory;
+    }
+
+    public static List<Weapon> getPlayerWeaponInventory(Player player) {
+        return player.weaponInventory;
+    }
+
     //bubble sort
     public static void bubbleSort(List<Food> list, List<Weapon> list1) {
         if (list1 == null) {
             int n = list.size();
             for (int i = 0; i < n-1; i++) {
                 for (int j = 0; j < n - i - 1; j++) {
-                    if (compareStrings(list.get(j).toString(), list.get(j + 1).toString())) {
-                        // swap arr[j+1] and arr[j]
+                    if (compareStrings(list.get(j).toString(), list.get(j + 1).toString())) { //compares the two string items in the list to determine which one is grater
+                        // swapping pair
                         Food temp = list.get(j);
                         list.add(j, list.get(j + 1));
                         list.add(j + 1, temp);
@@ -50,7 +145,7 @@ public class Main {
             for (int i = 0; i < n-1; i++) {
                 for (int j = 0; j < n - i - 1; j++) {
                     if (compareStrings(list1.get(j).toString(), list1.get(j + 1).toString())) {
-                        // swap arr[j+1] and arr[j]
+                        // swapping pair
                         Weapon temp = list1.get(j);
                         list1.add(j, list1.get(j + 1));
                         list1.add(j + 1, temp);
@@ -60,11 +155,12 @@ public class Main {
         }
     }
 
-
+    //function to compare two strings to find which one is greater
     public static boolean compareStrings(String arg1, String arg2) {
         int arg1Len = arg1.length();
         int arg2Len = arg2.length();
 
+        //checks which string greater in length
         if (arg1Len < arg2Len) {
             String temp;
             temp = arg1;
@@ -73,6 +169,7 @@ public class Main {
 
             arg1Len = arg1.length();
         }
+        //compares each character iteration by iteration
         for (int i = 0; i < arg1Len; i++) {
             if (arg1.charAt(i) > arg2.charAt(i)) {
                 return true;
@@ -223,103 +320,6 @@ public class Main {
         print("\n");
     }
 
-
-    //create player records
-    public static void createPlayerRecord(Player player, String name) {
-        setPlayerInventory(player, 10);
-        addWeaponToInventory(getWeaponArray()[0], player);
-        setPlayerName(player, name);
-        setPlayerHealth(player, 100);
-        setPlayerSpeed(player, 10);
-        setPlayerCurrentWeapon(player, getPlayerWeaponInventory(player).get(0));
-        setPlayerStrength(player, 12 + getPlayerCurrentWeapon(player).strengthIncrease);
-        setPlayerCurrentLocation(player, getLocation("Crash Site"));
-
-    }
-
-    //setters
-    public static void setPlayerName(Player player, String name) {
-        player.name = name;
-    }
-
-    public static void setPlayerHealth(Player player, int health) {
-        player.health = health;
-    }
-
-    public static void setPlayerSpeed(Player player, int speed) {
-        player.speed = speed;
-    }
-
-    public static void setPlayerStrength(Player player, int strength) {
-        player.strength = strength;
-    }
-
-    public static void setPlayerInventory(Player player, int inventory) {
-        player.inventory = inventory;
-    }
-
-    public static void setPlayerCurrentLocation(Player player, Surrounding currentLocation) {
-        player.currentLocation = currentLocation;
-    }
-
-    public static void setPlayerPreviousLocation(Player player, Surrounding previousLocation) {
-        player.previousLocation = previousLocation;
-    }
-
-    public static void setPlayerXP(Player player, int xp) {
-        player.xp = xp;
-    }
-
-    public static void setPlayerCurrentWeapon(Player player, Weapon weapon) {
-        player.currentWeapon = weapon;
-    }
-
-    //getters
-    public static String getPlayerName(Player player) {
-        return player.name;
-    }
-
-    public static int getPlayerHealth(Player player) {
-        return player.health;
-    }
-
-    public static int getPlayerSpeed(Player player) { //needs imp
-        return player.speed;
-    }
-
-    public static int getPlayerStrength(Player player) { //needs imp
-        return player.strength;
-    }
-
-    public static int getPlayerInventory(Player player) { //needs imp
-        return player.inventory;
-    }
-
-    public static Surrounding getPlayerCurrentLocation(Player player) {
-        return player.currentLocation;
-    }
-
-    public static Surrounding getPlayerPreviousLocation(Player player) {
-        return player.previousLocation;
-    }
-
-    public static int getPlayerXP(Player player) {
-        return player.xp;
-    }
-
-    public static Weapon getPlayerCurrentWeapon(Player player) {
-        return player.currentWeapon;
-    }
-
-    public static List<Food> getPlayerFoodInventory(Player player) {
-        return player.foodInventory;
-    }
-
-    public static List<Weapon> getPlayerWeaponInventory(Player player) {
-        return player.weaponInventory;
-    }
-
-
     //method to create player record
     public static Player playerCreator() {
         String name;
@@ -354,7 +354,7 @@ public class Main {
     }
 
     //array of in-game food
-    public static Food[] foodArray() {
+    public static void foodArray() {
         Food f1 = new Food();
         Food f2 = new Food();
         Food f3 = new Food();
@@ -362,7 +362,7 @@ public class Main {
         Food f5 = new Food();
         Food f6 = new Food();
 
-        return Food.foodArray = new Food[]{
+        Food.foodArray = new Food[]{
                 createFoodRecords(f1, "Apple", 5, 2),
                 createFoodRecords(f2, "Protein Bar", 15, 5),
                 createFoodRecords(f3, "Steak", 30, 10),
@@ -406,6 +406,10 @@ public class Main {
         return food.foodSpace;
     }
 
+    public static Food[] getFoodArray() {
+        return Food.foodArray;
+    }
+
     //WEAPON CODE
     //weapon info setup
     public static class Weapon {
@@ -415,7 +419,7 @@ public class Main {
         int inventorySpace;
     }
 
-    public static Weapon[] weaponArray() {
+    public static void weaponArray() {
         Weapon weapon0 = new Weapon();
         Weapon weapon1 = new Weapon();
         Weapon weapon2 = new Weapon();
@@ -424,7 +428,7 @@ public class Main {
         Weapon weapon5 = new Weapon();
         Weapon weapon6 = new Weapon();
 
-        return Weapon.weaponArray = new Weapon[]{
+        Weapon.weaponArray = new Weapon[]{
                 createWeaponRecords(weapon0, "Fist", 0, 0),
                 createWeaponRecords(weapon1, "Dark Sword", 20, 10),
                 createWeaponRecords(weapon2, "Brass Axe", 15, 12),
@@ -472,14 +476,13 @@ public class Main {
         return  weapon.inventorySpace;
     }
 
-    //returns the location in the abstract data type, Surrounding, using the name provided
     public static Weapon getWeapon(String name, Player player){
         int length = getWeaponListSize(player);
         for (int i = 0; i<length; i++) {
 
             if (getWeaponArray()[i] != null) {
-                if ((getWeaponName(weaponArray()[i])).equals(name)) {
-                    return weaponArray()[i];
+                if ((getWeaponName(getWeaponArray()[i])).equals(name)) {
+                    return getWeaponArray()[i];
                 }
             }
         }
@@ -820,7 +823,7 @@ public class Main {
         boolean validIn = false;
 
         while (!validIn) {
-            if (ans.equals("yes")||ans.equals("no")) {
+            if (ans.equalsIgnoreCase("yes")||ans.equals("no")) {
                 validIn = true;
             } else {
                 print("Please enter a valid response (yes or no) >>>");
@@ -859,6 +862,8 @@ public class Main {
     //game info setup
     public static void startGame() {
         loadMap();
+        foodArray();
+        weaponArray();
         gameDirection();
     }
 
@@ -1058,7 +1063,7 @@ public class Main {
         int foodChance = random1.nextInt(100);
         int weaponChance = random2.nextInt(100);
         if (foodChance > 30) {
-            food = randomFood(foodArray());
+            food = randomFood(getFoodArray());
             print("\n\nYou have found: " +
                     "\nName: " + getFoodName(food) +
                     "\nValue: " + getFoodValue(food) +
