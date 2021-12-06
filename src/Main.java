@@ -129,53 +129,30 @@ public class Main {
     //bubble sort
     public static void bubbleSort(List<Food> list, List<Weapon> list1) {
         if (list1 == null) {
-            int n = list.size();
-            for (int i = 0; i < n-1; i++) {
-                for (int j = 0; j < n - i - 1; j++) {
-                    if (compareStrings(list.get(j).toString(), list.get(j + 1).toString())) { //compares the two string items in the list to determine which one is grater
+            int n = list.size()-1;
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n - i; j++) {
+                    if (list.get(j).name.compareTo(list.get(j + 1).name) > 0) { //compares the two string items in the list to determine which one is grater
                         // swapping pair
                         Food temp = list.get(j);
-                        list.add(j, list.get(j + 1));
-                        list.add(j + 1, temp);
+                        list.set(j, list.get(j + 1));
+                        list.set(j + 1, temp);
                     }
                 }
             }
         } else {
-            int n = list1.size();
-            for (int i = 0; i < n-1; i++) {
-                for (int j = 0; j < n - i - 1; j++) {
-                    if (compareStrings(list1.get(j).toString(), list1.get(j + 1).toString())) {
+            int n = list1.size()-1;
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n - i; j++) {
+                    if (list1.get(j).name.compareTo(list1.get(j + 1).name) > 0) {
                         // swapping pair
                         Weapon temp = list1.get(j);
-                        list1.add(j, list1.get(j + 1));
-                        list1.add(j + 1, temp);
+                        list1.set(j, list1.get(j + 1));
+                        list1.set(j + 1, temp);
                     }
                 }
             }
         }
-    }
-
-    //function to compare two strings to find which one is greater
-    public static boolean compareStrings(String arg1, String arg2) {
-        int arg1Len = arg1.length();
-        int arg2Len = arg2.length();
-
-        //checks which string greater in length
-        if (arg1Len < arg2Len) {
-            String temp;
-            temp = arg1;
-            arg1 = arg2;
-            arg2 = temp;
-
-            arg1Len = arg1.length();
-        }
-        //compares each character iteration by iteration
-        for (int i = 0; i < arg1Len; i++) {
-            if (arg1.charAt(i) > arg2.charAt(i)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public static void manageFoodInventory(Player player) {
@@ -800,6 +777,7 @@ public class Main {
         }
     }
 
+    //INPUT OUTPUT CODE
     //print messages without writing System.out.println() each time
     public static void print(String message){
         System.out.print(message);
@@ -1309,5 +1287,6 @@ public class Main {
 
     public static void main(String[] args) {
         loadGame();
+
     }
 }
