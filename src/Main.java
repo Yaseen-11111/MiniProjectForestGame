@@ -33,6 +33,8 @@ public class Main {
 
     //create player records
     public static void createPlayerRecord(Player player, String name) {
+        final Surrounding spawnLocation = getLocation("Crash Site");
+
         setPlayerInventory(player, 10);
         addWeaponToInventory(getWeaponArray()[0], player);
         setPlayerName(player, name);
@@ -40,8 +42,7 @@ public class Main {
         setPlayerSpeed(player, 10);
         setPlayerCurrentWeapon(player, getPlayerWeaponInventory(player).get(0));
         setPlayerStrength(player, 12 + getPlayerCurrentWeapon(player).strengthIncrease);
-        setPlayerCurrentLocation(player, getLocation("Crash Site"));
-
+        setPlayerCurrentLocation(player, spawnLocation);
     }
 
     //setters
@@ -126,13 +127,29 @@ public class Main {
         return player.weaponInventory;
     }
 
+    public static void checkPlayerLevel(Player player) {
+        int playerXP = getPlayerXP(player);
+        if (playerXP >= 100) {
+            playerLevelUp(player, 25);
+        }
+    }
+
+    public static void playerLevelUp(Player player, int level) {
+        setPlayerStrength(player, getPlayerStrength(player) + level);
+        setPlayerHealth(player, getPlayerHealth(player) + level);
+        setPlayerSpeed(player, getPlayerSpeed(player) + level);
+        setPlayerInventory(player, getPlayerInventory(player) + 15);
+        setPlayerXP(player, 0);
+        print("\n" + getPlayerName(player) + " has leveled up! ");
+    }
+
     //bubble sort
     public static void bubbleSort(List<Food> list, List<Weapon> list1) {
         if (list1 == null) {
             int n = list.size()-1;
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < n - i; j++) {
-                    if (list.get(j).name.compareTo(list.get(j + 1).name) > 0) { //compares the two string items in the list to determine which one is grater
+                    if (getFoodName(list.get(j)).compareTo(getFoodName(list.get(j + 1))) > 0) { //compares the two string items in the list to determine which one is grater
                         // swapping pair
                         Food temp = list.get(j);
                         list.set(j, list.get(j + 1));
@@ -144,7 +161,7 @@ public class Main {
             int n = list1.size()-1;
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < n - i; j++) {
-                    if (list1.get(j).name.compareTo(list1.get(j + 1).name) > 0) {
+                    if (getWeaponName(list1.get(j)).compareTo(getWeaponName(list1.get(j + 1))) > 0) {
                         // swapping pair
                         Weapon temp = list1.get(j);
                         list1.set(j, list1.get(j + 1));
@@ -235,7 +252,7 @@ public class Main {
         int size = getFoodInventorySize(player);
         int remaining = inventory - size;
 
-        if (getFoodSpace(item) < remaining) {
+        if (getFoodSpace(item) <= remaining) {
             getPlayerFoodInventory(player).add(item);
             return "\nItem added to the list\n";
         } else {
@@ -248,7 +265,7 @@ public class Main {
         int size = getWeaponInventorySize(player);
         int remaining = inventory - size;
 
-        if (getInventorySpace(item) < remaining) {
+        if (getInventorySpace(item) <= remaining) {
             getPlayerWeaponInventory(player).add(item);
             return "\n" + item.name + " added to the list";
         } else {
@@ -489,14 +506,14 @@ public class Main {
         Creature c7 = new Creature();
 
         Creature.creatureArray = new Creature[]{
-                createCreatureRecords(c1, "Bear", true, 10, 100, 15, 5),
-                createCreatureRecords(c2, "Dragon", true, 25, 100, 40, 20),
-                createCreatureRecords(c3, "Troll", true, 10, 100, 5, 5),
+                createCreatureRecords(c1, "Bear", true, 10, 100, 15, 10),
+                createCreatureRecords(c2, "Dragon", true, 25, 100, 40, 25),
+                createCreatureRecords(c3, "Troll", true, 10, 100, 5, 20),
                 createCreatureRecords(c4, "Wolf", true, 15, 100, 35, 15),
-                createCreatureRecords(c5, "Cow", false, 0, 100, 10, 0),
-                createCreatureRecords(c6, "Cat", false, 5, 100, 20, 0),
-                createCreatureRecords(c7, "Dog", false, 10, 100, 20, 0),
-                createCreatureRecords(c7, "Sheep", false, 0, 100, 10, 0)
+                createCreatureRecords(c5, "Cow", false, 0, 100, 10, 5),
+                createCreatureRecords(c6, "Cat", false, 5, 100, 20, 5),
+                createCreatureRecords(c7, "Dog", false, 10, 100, 20, 5),
+                createCreatureRecords(c7, "Sheep", false, 0, 100, 10, 5)
         };
     }
 
@@ -570,7 +587,8 @@ public class Main {
     //SURROUNDING CODE
     //surrounding info setup
     public static class Surrounding {
-        static final Surrounding[] visitedLocations = new Surrounding[50];
+        final static int size = 50;
+        static final Surrounding[] visitedLocations = new Surrounding[size];
         static Surrounding[] map;
 
         String name;
@@ -851,7 +869,7 @@ public class Main {
         Random randomNumber = new Random();
         int creatureChance = randomNumber.nextInt(100);
 
-        if (creatureChance >=50) {
+        if (creatureChance >=30) {
             print("You are currently at the " + getSurroundingName(location) + " where there is a " + getCreatureName(creature) + " approaching you... "  );
             if (getCreatureAgro(creature)) {
                 agroCreatureOptions(creature, player);
@@ -1040,7 +1058,7 @@ public class Main {
         Weapon weapon;
         int foodChance = random1.nextInt(100);
         int weaponChance = random2.nextInt(100);
-        if (foodChance > 30) {
+        if (foodChance > 20) {
             food = randomFood(getFoodArray());
             print("\n\nYou have found: " +
                     "\nName: " + getFoodName(food) +
@@ -1052,6 +1070,9 @@ public class Main {
         }
         if (weaponChance > 15) {
             weapon = randomWeapon(getWeaponArray());
+            while (weapon.name.equals("fist")) {
+                weapon = randomWeapon(getWeaponArray());
+            }
             print("\n\nYou have found: " +
                     "\nName: " + getWeaponName(weapon) +
                     "\nStrength Increase: " + getStrengthIncrease(weapon) +
@@ -1200,25 +1221,23 @@ public class Main {
 
         while (run) {
             String in = inputString("\n -------------------------------------------------------------------------------------------------------------------------\n" +
-                    "\nPlease enter: \n): Save Game 'a' \nb) End Game 'b' \nc) View stats menu \nd) Manage weapons \ne) Close Options Menu 'c' \nPlease enter your input >>> ");
-            if (in.equalsIgnoreCase("a")||in.equalsIgnoreCase("b")||in.equalsIgnoreCase("c")) {
-                switch (in.toLowerCase()) {
-                    case "a":
-                        saveGame(player);
-                        break;
-                    case "b":
-                        stopGame();
-                        break;
-                    case "c":
-                        print(statsMenu(player));
-                        break;
-                    case "d":
-                        manageWeaponInventory(player);
-                        break;
-                    case "e":
-                        run = false;
-                        break;
-                }
+                    "\nPlease enter: \na): Save Game 'a' \nb) End Game 'b' \nc) View stats menu 'c' \nd) Manage weapons 'd' \ne) Close Options Menu 'e' \nPlease enter your input >>> ");
+            switch (in.toLowerCase()) {
+                case "a":
+                    saveGame(player);
+                    break;
+                case "b":
+                    stopGame();
+                    break;
+                case "c":
+                    print(statsMenu(player));
+                    break;
+                case "d":
+                    manageWeaponInventory(player);
+                    break;
+                case "e":
+                    run = false;
+                    break;
             }
         }
         directionOptions(player);
@@ -1249,6 +1268,7 @@ public class Main {
 
     //method to display the input options available for the user
     public static void directionOptions(Player player) {
+        checkPlayerLevel(player);
         String north = getSurroundingName(getSurroundingNorth(getPlayerCurrentLocation(player)));
         String east = getSurroundingName(getSurroundingEast(getPlayerCurrentLocation(player)));
         String south = getSurroundingName(getSurroundingSouth(getPlayerCurrentLocation(player)));
