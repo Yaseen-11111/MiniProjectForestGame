@@ -9,14 +9,13 @@
         help the animals along the way
    ****************************************/
 
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 public class Main {
     //PLAYER CODE
     //player info setup
-    public static class Player {
+    public static class Player implements Serializable {
         String name;
         int health;
         int speed;
@@ -26,6 +25,8 @@ public class Main {
         Weapon currentWeapon;
         Surrounding previousLocation;
         Surrounding currentLocation;
+        File gameDirectory;
+
 
         List<Food> foodInventory = new ArrayList<>() ;
         List<Weapon> weaponInventory = new ArrayList<>();
@@ -82,6 +83,10 @@ public class Main {
         player.currentWeapon = weapon;
     }
 
+    public static void setPlayerGameDirectory(Player player, File file) {
+        player.gameDirectory = file;
+    }
+
     //getters
     public static String getPlayerName(Player player) {
         return player.name;
@@ -125,6 +130,10 @@ public class Main {
 
     public static List<Weapon> getPlayerWeaponInventory(Player player) {
         return player.weaponInventory;
+    }
+
+    public static File getPlayerGameDirectory(Player player) {
+        return player.gameDirectory;
     }
 
     public static void checkPlayerLevel(Player player) {
@@ -326,6 +335,7 @@ public class Main {
             name = inputString("Hello there, what is your name? >>> ");
             if (name.length()>1) {
                 createPlayerRecord(player, name);
+                createGameDirectory(player);
                 addVisited(getPlayerCurrentLocation(player), getSurroundingArray());
                 print("\nHello there " + name + ", welcome to The forest, where you will face challenges and a chance to explore this vast land. What will you find?\n ");
                 print("\nGame rules are straight forward, enjoy the game, explore the forest, defeat threats and make friends. \nEnter 'OPTIONS' to bring up the options menu, press 'N' to go north, 'E' to go east, 'S' to go south, 'W' to go west. Enjoy...  ");
@@ -340,7 +350,7 @@ public class Main {
 
     //FOOD CODE
     //food info setup
-    public static class Food {
+    public static class Food implements Serializable {
         public static Food[] foodArray;
         String name;
         int foodValue;
@@ -406,7 +416,7 @@ public class Main {
 
     //WEAPON CODE
     //weapon info setup
-    public static class Weapon {
+    public static class Weapon implements Serializable {
         public static Weapon[] weaponArray;
         String name;
         int strengthIncrease;
@@ -586,7 +596,7 @@ public class Main {
 
     //SURROUNDING CODE
     //surrounding info setup
-    public static class Surrounding {
+    public static class Surrounding implements Serializable {
         final static int size = 50;
         static final Surrounding[] visitedLocations = new Surrounding[size];
         static Surrounding[] map;
@@ -781,20 +791,6 @@ public class Main {
         }
     }
 
-    //reads file data
-    private static void readFile(String fileName) {
-
-        try (FileInputStream fis = new FileInputStream(fileName)) {
-            int content;
-            // reads a byte at a time, if it reached end of the file, returns -1
-            while ((content = fis.read()) != -1) {
-                System.out.print((char) content);
-            }
-        } catch (IOException ex) {
-            print(ex.getMessage());
-        }
-    }
-
     //INPUT OUTPUT CODE
     //print messages without writing System.out.println() each time
     public static void print(String message){
@@ -848,10 +844,42 @@ public class Main {
         String ans = inputString("\nDo you have a game saved? (yes or no) >>> ");
         if (trueOrFalse(ans)) {
             String file = inputString("\nPlease enter the file directory >>> ");
-            readFile(file);
+            Player player = readFile(file);
+            directionOptions(player);
+
         } else {
             startGame();
         }
+    }
+
+    public static void createGameDirectory(Player player) {
+        boolean newFilePath = false;
+
+        File userDirectory = new File("C:");
+
+        String[] pathNames = userDirectory.list();
+
+        for (String pathName : pathNames) {
+            if (! pathName.equals("theForest")) {
+                newFilePath = true;
+            } else {
+                newFilePath = false;
+                print("\nGame save data already exist... \n");
+                break;
+            }
+        }
+
+        if (newFilePath) {
+            File gameDirectory = new File(userDirectory + "//theForest");
+            setPlayerGameDirectory(player, gameDirectory);
+            if (gameDirectory.mkdir() && writeFile(player, gameDirectory)) {
+                print("\nGame save data created successfully... \n");
+            } else {
+                print("\nError creating game save date... \n");
+            }
+        }
+
+
     }
 
     //GAME CODE
@@ -1263,9 +1291,41 @@ public class Main {
         System.exit(130);
     }
     public static void saveGame(Player player){
-        print("Saving game... ");
+        print("\nSaving game... ");
+        if (writeFile(player, getPlayerGameDirectory(player))) {
+            print("\nGame saved successfully... \n");
+        } else {
+            print("\nError saving game... ");
+        }
     }
 
+    //reads file data
+    private static Player readFile(String fileName) {
+
+        try (FileInputStream fis = new FileInputStream(fileName)) {
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            Player loadPlayer = (Player) ois.readObject();
+            ois.close();
+            return loadPlayer;
+        } catch (ClassNotFoundException | IOException ex) {
+            print(ex.getMessage());
+            stopGame();
+            return new Player();
+        }
+    }
+
+    private static boolean writeFile(Player player, File filePath) {
+        try {
+            FileOutputStream fos = new FileOutputStream(filePath + "//savedGame.txt", false);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(player);
+            oos.close();
+            return true;
+        } catch (IOException ex) {
+            print(ex.getLocalizedMessage());
+            return false;
+        }
+    }
     //method to display the input options available for the user
     public static void directionOptions(Player player) {
         checkPlayerLevel(player);
