@@ -841,10 +841,16 @@ public class Main {
     //load game data if available to pass to the game setup method
     public static void loadGame() {
         titlePage();
-        String ans = inputString("\nDo you have a game saved? (yes or no) >>> ");
+        String ans;
+        ans = inputString("\nDo you have a game saved? (yes or no) >>> ");
         if (trueOrFalse(ans)) {
-            String file = inputString("\nPlease enter the file directory >>> ");
+            String file;
+            file = checkGameDirectory();
+            if (file.equals("-1")) {
+                file = inputString("\nPlease enter the file directory >>> ");
+            }
             Player player = readFile(file);
+            print("\nWelcome back " + getPlayerName(player) + "\n");
             directionOptions(player);
 
         } else {
@@ -853,33 +859,60 @@ public class Main {
     }
 
     public static void createGameDirectory(Player player) {
-        boolean newFilePath = false;
+        boolean fileExist = false;
 
-        File userDirectory = new File("C:");
+        File userDirectory = new File("C://");
 
         String[] pathNames = userDirectory.list();
 
+        assert pathNames != null;
         for (String pathName : pathNames) {
-            if (! pathName.equals("theForest")) {
-                newFilePath = true;
-            } else {
-                newFilePath = false;
+            if (pathName.equals("theForest")) {
+                fileExist = false;
                 print("\nGame save data already exist... \n");
                 break;
+            } else {
+                fileExist = true;
             }
         }
-
-        if (newFilePath) {
+        if (fileExist) {
             File gameDirectory = new File(userDirectory + "//theForest");
             setPlayerGameDirectory(player, gameDirectory);
-            if (gameDirectory.mkdir() && writeFile(player, gameDirectory)) {
+            if (gameDirectory.mkdir() && writeFile(player, gameDirectory, false)) {
                 print("\nGame save data created successfully... \n");
             } else {
                 print("\nError creating game save date... \n");
             }
         }
+    }
 
+    public static String checkGameDirectory() {
+        boolean fileExist = false;
+        File userDirectory = new File("C:\\");
+        String[] pathNames = userDirectory.list();
 
+        assert pathNames != null;
+        for (String pathName : pathNames) {
+            if (pathName.equals("theForest")) {
+                fileExist = true;
+                print("Save files found\nFILES");
+                break;
+            }
+        }
+        if (fileExist) {
+            File gameDirectory = new File(userDirectory + "\\theForest");
+            pathNames = gameDirectory.list();
+            int len = Objects.requireNonNull(pathNames).length;
+            String ans = "-1";
+            for (int i = 0; i < len; i++) {
+                print("\n" + (i+1) + ": " + pathNames[i]);
+            }
+            while (Integer.parseInt(ans) > len | Integer.parseInt(ans) <= 0) {
+                ans = inputString("\n\nPlease enter a number correlated to the files >>> ");
+            }
+            return gameDirectory + "\\" + pathNames[(Integer.parseInt(ans)-1)];
+        }
+        return "-1";
     }
 
     //GAME CODE
@@ -1291,16 +1324,39 @@ public class Main {
         System.exit(130);
     }
     public static void saveGame(Player player){
+        String ans = inputString("\na)Existing saved game file" +
+                "\nb)New saved game file");
+
+        switch (ans) {
+            case "a":
+                existingGameSave(player);
+                break;
+            case "b":
+                newGameSave(player);
+                break;
+        }
+    }
+
+    public static void existingGameSave(Player player) {
         print("\nSaving game... ");
-        if (writeFile(player, getPlayerGameDirectory(player))) {
+        if (writeFile(player, getPlayerGameDirectory(player), false)) {
             print("\nGame saved successfully... \n");
         } else {
             print("\nError saving game... ");
         }
     }
 
+    public static void newGameSave(Player player) {
+        print("\nSaving game... ");
+        if (writeFile(player, getPlayerGameDirectory(player), true)) {
+            print("\nGame saved successfully... \n");
+        } else {
+            print("\nError saving game... ");
+        }    }
+
     //reads file data
     private static Player readFile(String fileName) {
+        print(fileName);
 
         try (FileInputStream fis = new FileInputStream(fileName)) {
             ObjectInputStream ois = new ObjectInputStream(fis);
@@ -1314,9 +1370,15 @@ public class Main {
         }
     }
 
-    private static boolean writeFile(Player player, File filePath) {
+    //write file data
+    private static boolean writeFile(Player player, File filePath, Boolean newFile) {
+        int count = 0;
+        if (newFile) {
+            File userDirectory = new File("C://forestGame");
+            count = Objects.requireNonNull(userDirectory.list()).length;
+        }
         try {
-            FileOutputStream fos = new FileOutputStream(filePath + "//savedGame.txt", false);
+            FileOutputStream fos = new FileOutputStream(filePath + "//savedGame.txt" + count, false);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(player);
             oos.close();
@@ -1326,6 +1388,7 @@ public class Main {
             return false;
         }
     }
+
     //method to display the input options available for the user
     public static void directionOptions(Player player) {
         checkPlayerLevel(player);
