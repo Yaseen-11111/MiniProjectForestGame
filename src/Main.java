@@ -849,7 +849,9 @@ public class Main {
             if (file.equals("-1")) {
                 file = inputString("\nPlease enter the file directory >>> ");
             }
+            File userDirectory = new File(file);
             Player player = readFile(file);
+            setPlayerGameDirectory(player, userDirectory);
             print("\nWelcome back " + getPlayerName(player) + "\n");
             directionOptions(player);
 
@@ -1319,10 +1321,12 @@ public class Main {
                 "\nCurrent Weapon: " + getWeaponName(getPlayerCurrentWeapon(player));
     }
 
+    //stops game
     public static void stopGame() {
         print("Ending game... ");
         System.exit(130);
     }
+
     public static void saveGame(Player player){
         String ans = inputString("\na)Existing saved game file" +
                 "\nb)New saved game file");
@@ -1352,7 +1356,8 @@ public class Main {
             print("\nGame saved successfully... \n");
         } else {
             print("\nError saving game... ");
-        }    }
+        }
+    }
 
     //reads file data
     private static Player readFile(String fileName) {
@@ -1361,6 +1366,7 @@ public class Main {
         try (FileInputStream fis = new FileInputStream(fileName)) {
             ObjectInputStream ois = new ObjectInputStream(fis);
             Player loadPlayer = (Player) ois.readObject();
+            fis.close();
             ois.close();
             return loadPlayer;
         } catch (ClassNotFoundException | IOException ex) {
@@ -1378,9 +1384,10 @@ public class Main {
             count = Objects.requireNonNull(userDirectory.list()).length;
         }
         try {
-            FileOutputStream fos = new FileOutputStream(filePath + "//savedGame.txt" + count, false);
+            FileOutputStream fos = new FileOutputStream(filePath + "//savedGame0.txt" + count, false);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(player);
+            fos.close();
             oos.close();
             return true;
         } catch (IOException ex) {
@@ -1430,6 +1437,5 @@ public class Main {
 
     public static void main(String[] args) {
         loadGame();
-
     }
 }
